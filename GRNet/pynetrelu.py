@@ -1,4 +1,5 @@
 import numpy as np
+import os
 
 
 def act(x):
@@ -41,7 +42,7 @@ class Network5():
         self.W2 = SaveError(self.N2,self.N3,self.W2,self.k)
         self.W3 = SaveError(self.N3,self.N4,self.W3,self.k)
         self.W4 = SaveError(self.N4,self.N5,self.W4,self.k)
-    def status(self,stat_num):
+    def GetLeyer(self,stat_num):
         self.stat_num = stat_num
         if self.stat_num == 1:
             return self.N1
@@ -55,6 +56,18 @@ class Network5():
             return self.N5
         else:
             return "this is not definet"
+    def GetWeight(self,stat_num):
+        self.stat_num = stat_num
+        if self.stat_num == 1:
+            return self.W1
+        elif self.stat_num == 2:
+            return self.W2
+        elif self.stat_num == 3:
+            return self.W3
+        elif self.stat_num == 4:
+            return self.W4
+        else:
+            return "this is not definet"       
     def think(self,inputs):
         self.inputs = inputs
         self.N1 = self.inputs
@@ -63,7 +76,25 @@ class Network5():
         self.N4 = progon(self.N3,self.N4,self.W3)
         self.N5 = progon(self.N4,self.N5,self.W4)
         return self.N5
-
+    
+    def SaveWeight(self,name):
+        path = os.getcwd()
+        try:
+            os.mkdir(path+"/saves"+"/"+name)
+        except(BaseException):
+            pass
+        np.save("saves/"+name+"/"+"Weight1",self.W1)
+        np.save("saves/"+name+"/"+"Weight2",self.W2)
+        np.save("saves/"+name+"/"+"Weight3",self.W3)
+        np.save("saves/"+name+"/"+"Weight4",self.W4)
+    def LoadWeight(self,name):
+        try:
+            self.W1 = np.load("saves/"+name+"/"+"Weight1.npy")
+            self.W2 = np.load("saves/"+name+"/"+"Weight2.npy")
+            self.W3 = np.load("saves/"+name+"/"+"Weight3.npy")
+            self.W4 = np.load("saves/"+name+"/"+"Weight4.npy")
+        except(BaseException):
+            return 0
 
 def act(x):
     return 1/(1 + np.exp(-x))

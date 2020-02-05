@@ -1,12 +1,14 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-from tkinter import *
+import tkinter as tk
 import random
 import pygame
 import sys
 import numpy as np
 from pynetrelu import *
 import matplotlib.pyplot as plt
+from Draw import *
+from keyboard import is_pressed
 
 pygame.init() #вызываю все методы pygame
 
@@ -15,7 +17,7 @@ Net = Network5([6,80,40,20,3])
 sum_error = []
 
 
-win = Tk() #создфю окно для ввода имени
+win = tk.Tk() #создфю окно для ввода имени
 win.title("okno")#делаю заголовок
 win.geometry("500x500")#ширина и высота окна
 
@@ -41,6 +43,7 @@ def click():#функция по нажатию кнопки "жми"
         file.write("\n\ngamer name: ")
         file.write("?????")# то что ввёл пользователь только знаками вопросов
         file.close()#закрываю файл
+    win.destroy()
         
     
 
@@ -48,7 +51,7 @@ def click():#функция по нажатию кнопки "жми"
 
 vvod_imeni = Entry(win,width=10)#делаю строку ввода
 label_text = Label(text="впиши своё имя" )#делаю надпись "впиши своё имя"
-label_opisanije = Label(text="описание и управление\nигрок движетсья по схеме клавиш(A,S,D,W), клавиша (P) включает музыку\nна клавишу (T) включаетсья окно где можно вписать команды\n(speed++, speed--, stop_kol(on), stop_kol(off), lose(on), lose(off))\nвсе ваши достижения в игрезаписываютсья в файл (fire_запись.txt)\nосле введения имени нажмите(готово)и закройте окно")
+label_opisanije = Label(text="описание и управление\nигрок движетсья по схеме клавиш(A,S,D,W), клавиша (P) включает музыку\nна клавишу (T) включаетсья окно где можно вписать команды\n(speed++, speed--, stop_kol(on), stop_kol(off), lose(on), lose(off))\nвсе ваши достижения в игрезаписываютсья в файл (fire_запись.txt)\nосле введения имени нажмите(готово)и закройте окно\n\nПрограммист: sidorovstefan.ru@gmail.com")
 btn = Button(win , text="готово" , command=click)#делаю кнопку которая вызывает функцию "click"
 
 
@@ -56,7 +59,6 @@ label_text.pack()#выставляю надпись
 vvod_imeni.pack()#выставляю строку ввода
 btn.pack()#выставляю кнопку
 label_opisanije.pack()#выставляю надпись
-
 win.mainloop()# делаю окно бесконечным до того как пользователь нажмет на крестик
 
 
@@ -107,9 +109,11 @@ igrok = True
 jump = 10 #высота прышка
 if_jump = False#проверка на прыжок
 score = 0 # эта переменая служит для очков
+showing = False
 trein = True
 inputs = np.full((6,2),0.0)
 outputs = np.full((3,2),0.0)
+MyDraw = None
 
 #переменые за кол падающий с верху-----------------------------
 
@@ -180,9 +184,6 @@ walk_right =[pygame.image.load("celovek_zeljonka_right1.png"),#делаю спи
 #конец загрузки картинок------------------
 
 #ВСЕ def ------------------------------------------
-def command_click(): #это для действий кнопки 
-    command = vvod_command.get()
-    dejstvija(command)
 
 def dejstvija(command): #это читы
     global speed_igrok
@@ -190,43 +191,77 @@ def dejstvija(command): #это читы
     global igrok_dont_lose
     global sum_error
     global trein
-    label_praviljno = Label(text="успешно введена команда")
+    global showing
+    global MyDraw
+    LC = list(command)
+    OutCommand = "command is sucesfull work!"
     
 
-    if command == "speed++":                        #
-        speed_igrok += 30                            #
-        label_praviljno.pack()                      #
-    elif command == "speed--":                        #
-        if speed_igrok >= 0:                        #
-            speed_igrok -= 10                       #
-            label_praviljno.pack()                   #
+    if command == "speed++":                        
+        speed_igrok += 30  
+        print(OutCommand)                          
+    elif command == "speed--":                        
+        if speed_igrok >= 0:                        
+            speed_igrok -= 10  
+        print(OutCommand)                     
             
-    elif command == "stop_kol(on)":                   #
-        speed_kol = 0                               #
-        label_praviljno.pack()                       #
-    elif command == "stop_kol(off)":                  #
-        
-        speed_kol = 20                              #>>>>>>>>>>>>>> это всё читы 
-        label_praviljno.pack()                        #
-    elif command == "lose(off)":                      #
-        
-        igrok_dont_lose = True                      #
-        label_praviljno.pack()                       #
-        
-    elif command == "lose(on)":                       #
-        igrok_dont_lose = False                     #
-        label_praviljno.pack() 
+    elif command == "stop_kol(on)":                   
+        speed_kol = 0  
+        print(OutCommand)                             
+    elif command == "stop_kol(off)":                  
+        speed_kol = 20   
+        print(OutCommand)
+                                              #>>>>>>>>>>>>>> это всё читы 
+    elif command == "lose(off)":                      
+        igrok_dont_lose = True                      
+        print(OutCommand)
+    elif command == "lose(on)":                       
+        igrok_dont_lose = False     
+        print(OutCommand)                
     elif command == "show":
         plt.plot(sum_error)
         plt.show()
+        print(OutCommand)
     elif command == "avto":
         trein = False
+        FPS = 60
+        print(OutCommand)
+
     elif command == "trein":
         trein = True
-        
+        FPS = 30
+        print(OutCommand)
+    elif LC[0] == "S" and LC[1] == "a" and LC[2] == "v" and LC[3] == "e":
+        LC.pop(0)
+        LC.pop(0)
+        LC.pop(0)
+        LC.pop(0)
+        LC.pop(0)
+        LC = "".join(LC)
+        Net.SaveWeight(LC)
+        print(OutCommand)
+    elif LC[0] == "L" and LC[1] == "o" and LC[2] == "a" and LC[3] == "d":
+        LC.pop(0)
+        LC.pop(0)
+        LC.pop(0)
+        LC.pop(0)
+        LC.pop(0)
+        LC = "".join(LC)
+        error = Net.LoadWeight(LC)
+        if error == 0:
+            print("Dont such this saves")
+        else:
+            print(OutCommand)
+    elif command == "Net":
+        MyDraw = DrawNetwork(600,700)
+        showing = True
+        print(OutCommand)
+        print("Hey! this option is for very power computer")
+    elif command == "kill":
+        showing == False
+        MyDraw.KillWin()
     else:
-        label_oshibka = Label(text="несуществует такой команды!!!")
-        label_oshibka.pack()
+        print("Dont such this command")
 
 
 
@@ -448,16 +483,8 @@ while pley == True:
             
     keys = pygame.key.get_pressed()# список в котором будет отслеживаться действия пользователя
     if keys[pygame.K_t]:
-        console = Tk() #делаю окно
-        console.geometry("250x250")#задаю размер
-        console.title("console")#название        
-        
-        vvod_command = Entry(console, width=15)#это поле ввода
-        command_button = Button(text="готово",command=command_click )#кнопка по которой будут исполнятся команды 
-        vvod_command.pack() #
-        command_button.pack()#все то что я зделал в окне "console" я выставляю
-        
-        console.mainloop()  #делаю окно бесконечным до того пока его не закройут
+        vvod = input("Enry command: ")
+        dejstvija(vvod)
         
     if keys[pygame.K_p]:
         perekljucenije_muzika = vkljucenije_muzika #
@@ -494,14 +521,26 @@ while pley == True:
     inputs[3][0] = y_kol / 1000
     inputs[4][0] = x_zvezda / 1000
     inputs[5][0] = y_zvezda / 1000
+    
     if trein == True:
         Net.trening(inputs,outputs,0.01)
-        a = Net.status(5)
-        sum_error.append(a[0][1] + a[1][1] + a[2][1])
+        N1 = Net.GetLeyer(1)
+        N2 = Net.GetLeyer(2)
+        N3 = Net.GetLeyer(3)
+        N4 = Net.GetLeyer(4)
+        N5 = Net.GetLeyer(5)
+        W1 = Net.GetWeight(1)
+        W2 = Net.GetWeight(2)
+        W3 = Net.GetWeight(3)
+        W4 = Net.GetWeight(4)
+
+        sum_error.append(N5[0][1] + N5[1][1] + N5[2][1])
     else:
         outputs = Net.think(inputs)
     vibor()
     outputs = np.full((3,2),0.0)
+    if showing == True:
+        MyDraw.Start(N1,N2,N3,N4,N5,W1,W2,W3,W4)
                 
     #конец анимации прышка----------------
     draw_OSwin_hodjba() #вызываю метод заполнения экрана                
